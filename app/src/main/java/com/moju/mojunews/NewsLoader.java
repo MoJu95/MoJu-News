@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.loader.content.AsyncTaskLoader;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -12,24 +14,27 @@ import android.content.ContentValues;
 
 
 public class NewsLoader extends AsyncTaskLoader<List<News>> {
-    private String mUrl;
 
-    public NewsLoader(Context context, String url) {
+    public NewsLoader(Context context) {
         super(context);
-        Log.i(ContentValues.TAG, "NewsLoader: "+ url);
-        mUrl = url;
-    }
-
-    @Override
-    public List<News> loadInBackground() {
-        if(mUrl == null) return null;
-
-        List<News> newsList = QueryTools.fetchNewsData(mUrl);
-        return newsList;
     }
 
     @Override
     protected void onStartLoading() {
+        super.onStartLoading();
         forceLoad();
+    }
+
+    @Override
+    public List<News> loadInBackground() {
+        List<News> listOfNews = null;
+        try {
+            URL url = QueryTools.createUrl();
+            String jsonResponse = QueryTools.makeHttpRequest(url);
+            listOfNews = QueryTools.parseJson(jsonResponse);
+        } catch (IOException e) {
+            Log.e("Queryutils", "Error Loader LoadInBackground: ", e);
+        }
+        return listOfNews;
     }
 }

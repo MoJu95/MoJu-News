@@ -2,5 +2,4 @@
     <string name="app_name">MoJu News</string>
     <string name="no_results">No Results</string>
     <string name="no_internet">No Internet Connection</string>
-    <string name="url">http://content.guardianapis.com/technology</string>
 </resources>

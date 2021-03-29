@@ -1,93 +1,71 @@
 package com.moju.mojunews;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import java.util.ArrayList;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
-
-    public static final String GUARDIAN_API_URL = "http://content.guardianapis.com/technology";
-    private ListView newsListView;
-    private NewsAdapter newsAdapter;
-    private static final int NEWS_LOADER_ID = 1;
+public class MainActivity
+        extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<List<News>>, SwipeRefreshLayout.OnRefreshListener {
+    private NewsAdapter adapter;
+    private static int LOADER_ID = 0;
+    SwipeRefreshLayout swipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        newsListView = (ListView) findViewById(R.id.news_list_view);
-        newsAdapter = new NewsAdapter(this, new ArrayList<News>());
-        newsListView.setAdapter(newsAdapter);
-        newsListView.setEmptyView(findViewById(R.id.splash_text_view));
-        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        swipe = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipe.setOnRefreshListener(this);
+        swipe.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+        ListView listView = (ListView) findViewById(R.id.list_view);
+        adapter = new NewsAdapter(this);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Find the current news item that was clicked on
-                News newsItem = newsAdapter.getItem(position);
-
-                // Convert the String URL into a URI object (to pass into the Intent constructor)
-                Uri newsItemUri = Uri.parse(newsItem.getWebUrl());
-
-                // Create a new intent to view the News Article
-                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsItemUri);
-
-                // Send the intent to launch a new activity
-                startActivity(websiteIntent);
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                News news = adapter.getItem(i);
+                String url = news.mUrl;
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
             }
         });
-
-        if(NetworkTools.isNetworkAvailable(this)) {
-            LoaderManager loaderManager = getSupportLoaderManager();
-            loaderManager.initLoader(NEWS_LOADER_ID, null, this);
-        } else {
-            TextView tvSplash = findViewById(R.id.splash_text_view);
-            tvSplash.setText(R.string.no_internet);
-
-            ProgressBar pb = findViewById(R.id.loading_spinner);
-            pb.setVisibility(View.GONE);
-        }
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @Override
     public Loader<List<News>> onCreateLoader(int id, Bundle args) {
-        Uri baseUri = Uri.parse(GUARDIAN_API_URL);
-        Uri.Builder uriBuilder = baseUri.buildUpon();
-
-        // Set api key
-        uriBuilder.appendQueryParameter("api-key", "test");
-
-        return new NewsLoader(this, uriBuilder.toString());
+        return new NewsLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<News>> loader, List<News> newsList) {
-        newsAdapter.clear();
-
-        if(newsList != null && !newsList.isEmpty()) {
-            newsAdapter.addAll(newsList);
-        } else {
-            TextView tvSplash = (TextView) findViewById(R.id.splash_text_view);
-            tvSplash.setText(R.string.no_results);
+    public void onLoadFinished(Loader<List<News>> loader, List<News> data) {
+        swipe.setRefreshing(false);
+        if (data != null) {
+            adapter.setNotifyOnChange(false);
+            adapter.clear();
+            adapter.setNotifyOnChange(true);
+            adapter.addAll(data);
         }
-        ProgressBar pb = (ProgressBar) findViewById(R.id.loading_spinner);
-        pb.setVisibility(View.GONE);
     }
-
     @Override
     public void onLoaderReset(Loader<List<News>> loader) {
-        newsAdapter.clear();
+
+    }
+
+    @Override
+    public void onRefresh() {
+        getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 }

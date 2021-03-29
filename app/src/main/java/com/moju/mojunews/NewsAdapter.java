@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -17,39 +18,26 @@ import java.util.List;
 
 public class NewsAdapter extends ArrayAdapter<News> {
 
-    private List<News> mNewsList;
-
-    private static class ViewHolder {
-        TextView title;
-        TextView publishedDate;
+    public NewsAdapter(Context context) {
+        super(context, -1, new ArrayList<News>());
     }
 
-    public NewsAdapter(Context context, List<News> newsList) {
-        super(context, 0, newsList);
-    }
-
-    @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        News news = getItem(position);
-
-        ViewHolder viewHolder;
-
-        if( convertView == null) {
-            viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.news_list_item, parent, false);
-
-            viewHolder.title = (TextView) convertView.findViewById(R.id.news_title);
-            viewHolder.publishedDate = (TextView) convertView.findViewById(R.id.published_date);
-
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+        if (convertView == null) {
+            convertView
+                    = LayoutInflater.from(getContext()).inflate(R.layout.news_list_item, parent, false);
         }
+        TextView title = convertView.findViewById(R.id.title);
+        TextView author = convertView.findViewById(R.id.author);
+        TextView date = convertView.findViewById(R.id.date);
+        TextView section =  convertView.findViewById(R.id.section);
 
-        viewHolder.title.setText(news.getWebTitle());
-        viewHolder.publishedDate.setText(news.getPublicationDate());
+        News currentNews = getItem(position);
+        title.setText(currentNews.getTitle());
+        author.setText(currentNews.getAuthor());
+        date.setText(currentNews.getDate());
+        section.setText(currentNews.getSection());
 
         return convertView;
     }
