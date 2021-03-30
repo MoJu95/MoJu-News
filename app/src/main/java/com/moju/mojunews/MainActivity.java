@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
@@ -41,7 +42,14 @@ public class MainActivity
                 startActivity(intent);
             }
         });
-        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+        if (NetworkTools.isNetworkAvailable(this)) {
+            getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        } else {
+            TextView tvSplash = findViewById(R.id.splash_text_view);
+            tvSplash.setText(R.string.no_internet);
+
+        }
     }
 
     @Override
@@ -52,13 +60,20 @@ public class MainActivity
     @Override
     public void onLoadFinished(Loader<List<News>> loader, List<News> data) {
         swipe.setRefreshing(false);
-        if (data != null) {
+        if (data != null && !data.isEmpty()) {
             adapter.setNotifyOnChange(false);
             adapter.clear();
             adapter.setNotifyOnChange(true);
             adapter.addAll(data);
+        } else if (!NetworkTools.isNetworkAvailable(this)) {
+            TextView tvSplash = findViewById(R.id.splash_text_view);
+            tvSplash.setText(R.string.no_internet);
+        } else {
+            TextView tvSplash = findViewById(R.id.splash_text_view);
+            tvSplash.setText(R.string.no_results);
         }
     }
+
     @Override
     public void onLoaderReset(Loader<List<News>> loader) {
 

@@ -1,7 +1,6 @@
 package com.moju.mojunews;
 
 
-
 public class News {
     String mTitle;
     String mAuthor;
@@ -49,5 +48,5 @@ public class News {
                 ", date='" + mDate + '\'' +
                 ", section='" + mSection + '\'' +
                 '}';
-        }
+    }
 }

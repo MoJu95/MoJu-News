@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import android.content.ContentValues;
-
-
 
 public class NewsLoader extends AsyncTaskLoader<List<News>> {
 

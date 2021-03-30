@@ -1,19 +1,13 @@
 package com.moju.mojunews;
 
 import android.content.Context;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
-import java.util.List;
-
-
 
 
 public class NewsAdapter extends ArrayAdapter<News> {
@@ -31,7 +25,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
         TextView title = convertView.findViewById(R.id.title);
         TextView author = convertView.findViewById(R.id.author);
         TextView date = convertView.findViewById(R.id.date);
-        TextView section =  convertView.findViewById(R.id.section);
+        TextView section = convertView.findViewById(R.id.section);
 
         News currentNews = getItem(position);
         title.setText(currentNews.getTitle());
